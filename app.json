@@ -24,6 +24,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "93515b73-1195-4a5d-a5e3-f60cb69cc1ae"
+      }
+    },
+    "owner": "liroym"
   }
 }
