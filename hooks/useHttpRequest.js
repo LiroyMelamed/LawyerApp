@@ -14,7 +14,6 @@ const useHttpRequest = (requestFunction, onSuccess, onFailure) => {
     };
 
     const performRequest = async (...args) => {
-        console.log('performRequest');
 
         if (isPerforming) return;
         setIsPerforming(true);
@@ -22,7 +21,6 @@ const useHttpRequest = (requestFunction, onSuccess, onFailure) => {
 
         try {
             const data = await requestFunction(...args);
-            console.log('data', data);
 
 
             if (data.status !== 200 && data.status !== 201) {

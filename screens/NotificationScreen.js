@@ -6,70 +6,65 @@ import { Ionicons } from '@expo/vector-icons'; // For the filter icon (adjust if
 import { icons } from '../assets/icons/icons'; // Assuming you have an icons file similar to ProfileScreen
 import useAutoHttpRequest from '../hooks/useAutoHttpRequest'; // Import useAutoHttpRequest
 import useHttpRequest from '../hooks/useHttpRequest'; // Import useHttpRequest
+import PrimaryButton from "../components/styledComponent/buttons/PrimaryButton";
+import { buttonSizes } from "../styles/buttons/buttonSizes";
+import { Text12, TextBold24 } from "../components/specializedComponents/text/AllTextKindFile";
 
 export default function NotificationScreen() {
     const [notifications, setNotifications] = useState([]);
+    const [isMarkingId, setIsMarkingId] = useState('')
     const [error, setError] = useState(null);
 
-    // Callback for successful notification fetch
-    const onSuccessFetchNotifications = useCallback((data) => {
-        // Sort notifications by CreatedAt (newest first)
+    const onSuccessFetchNotifications = (data) => {
         const sortedNotifications = data.sort((a, b) => new Date(b.CreatedAt) - new Date(a.CreatedAt));
         setNotifications(sortedNotifications);
-        setError(null); // Clear any previous errors on success
-    }, []);
+        setError(null);
+    };
 
-    // Callback for failed notification fetch
-    const onFailureFetchNotifications = useCallback((err) => {
+    const onFailureFetchNotifications = (err) => {
         console.error("Failed to fetch notifications:", err);
         setError("שגיאה בטעינת ההתראות. אנא נסה שוב.");
-        setNotifications([]); // Clear notifications on error
-    }, []);
+        setNotifications([]);
+    };
 
-    // useAutoHttpRequest for fetching notifications on component mount and refresh
-    const { isPerforming: isFetching, performRequest: refetchNotifications, isRefreshing } = useAutoHttpRequest(
+    const { isPerforming: isFetching, performRequest: refetchNotifications } = useAutoHttpRequest(
         notificationApi.getNotifications,
         {
             onSuccess: onSuccessFetchNotifications,
             onFailure: onFailureFetchNotifications,
-            initialData: [], // Provide initialData to avoid undefined issues
-            shouldPerformInitialRequest: true, // Ensure it fetches on mount
-            isRefreshing: true // Use this to control the RefreshControl state
         }
     );
 
-    // Callback for successful mark-as-read operation
-    const onSuccessMarkAsRead = useCallback((response, notificationId) => {
-        // Optimistically update UI
+    const onSuccessMarkAsRead = (data) => {
+        const updatedId = data?.NotificationId;
+        if (!updatedId) return;
+
         setNotifications(prevNotifications =>
             prevNotifications.map(notif =>
-                notif.NotificationId === notificationId ? { ...notif, IsRead: true } : notif
+                notif.NotificationId === updatedId ? { ...notif, IsRead: true } : notif
             )
         );
-    }, []);
+        setIsMarkingId('');
+    };
 
-    // Callback for failed mark-as-read operation
-    const onFailureMarkAsRead = useCallback((err) => {
+    const onFailureMarkAsRead = (err) => {
         console.error("Failed to mark as read:", err);
-        // Optionally show an error to the user
-    }, []);
+    };
 
-    // useHttpRequest for marking a notification as read
     const { isPerforming: isMarkingAsRead, performRequest: markNotificationAsReadRequest } = useHttpRequest(
         notificationApi.markNotificationAsRead,
         onSuccessMarkAsRead,
         onFailureMarkAsRead
     );
 
-    // Function to trigger marking a notification as read
     const handleMarkAsRead = (id) => {
-        markNotificationAsReadRequest(id, id); // Pass id twice: once for API, once for onSuccess callback
+        setIsMarkingId(id)
+        markNotificationAsReadRequest(id);
     };
 
-    // Handle pull-to-refresh
-    const onRefreshTrigger = useCallback(() => {
-        refetchNotifications(); // Trigger the auto-request to refetch
-    }, [refetchNotifications]);
+    const onRefreshTrigger = () => {
+        refetchNotifications();
+    };
 
     const renderItem = ({ item }) => (
         <View style={[styles.notificationItem, item.IsRead && styles.readNotificationItem]}>
@@ -90,22 +85,22 @@ export default function NotificationScreen() {
                 </View>
             </View>
             {!item.IsRead && (
-                <TouchableOpacity
+                <PrimaryButton
                     style={styles.markAsReadButton}
                     onPress={() => handleMarkAsRead(item.NotificationId)}
-                    disabled={isMarkingAsRead} // Disable button while request is pending
+                    size={buttonSizes.SMALL}
                 >
-                    {isMarkingAsRead ? (
+                    {isMarkingAsRead && isMarkingId === item.NotificationId ? (
                         <ActivityIndicator size="small" color={colors.white} />
                     ) : (
-                        <Text style={styles.markAsReadButtonText}>סמן כנקרא</Text>
+                        <Text12 style={{ color: colors.white }}>סמן כנקרא</Text12>
                     )}
-                </TouchableOpacity>
+                </PrimaryButton>
             )}
         </View>
     );
 
-    if (isFetching && notifications.length === 0) { // Show full loader only on initial fetch if no data
+    if (isFetching && notifications.length === 0) {
         return (
             <SafeAreaView style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={colors.primary} style={styles.loadingIndicator} />
@@ -128,14 +123,10 @@ export default function NotificationScreen() {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>התראות</Text>
-                {/* Optional filter icon - functionality not implemented here */}
-                <TouchableOpacity style={styles.filterIconContainer}>
-                    <Ionicons name="options-outline" size={28} color={colors.white} />
-                </TouchableOpacity>
+                <TextBold24 style={styles.headerTitle}>התראות</TextBold24>
             </View>
             <View style={styles.contentContainer}>
-                {notifications.length === 0 && !isFetching ? ( // Only show no notifications if not fetching and list is empty
+                {notifications.length === 0 && !isFetching ? (
                     <View style={styles.noNotificationsContainer}>
                         <Text style={styles.noNotificationsText}>אין לך התראות כרגע.</Text>
                     </View>
@@ -143,10 +134,11 @@ export default function NotificationScreen() {
                     <FlatList
                         data={notifications}
                         keyExtractor={(item) => item.NotificationId.toString()}
+                        extraData={notifications}
                         renderItem={renderItem}
                         contentContainerStyle={styles.flatListContent}
                         refreshControl={
-                            <RefreshControl refreshing={isRefreshing} onRefresh={onRefreshTrigger} colors={[colors.primary]} />
+                            <RefreshControl refreshing={isFetching} onRefresh={onRefreshTrigger} colors={[colors.primary]} />
                         }
                     />
                 )}
@@ -162,23 +154,17 @@ const styles = StyleSheet.create({
     },
     header: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
         paddingVertical: 40,
-        paddingHorizontal: 20,
-        backgroundColor: colors.primary, // Primary color from ProfileScreen
+        backgroundColor: colors.primary,
         borderBottomLeftRadius: 40,
         borderBottomRightRadius: 40,
         position: 'relative',
-        marginBottom: 20, // Space between header and content
+        marginBottom: 20,
     },
     headerTitle: {
-        fontSize: 26, // Larger font size for title
-        fontWeight: "bold",
         color: colors.white, // White color for title
-        flex: 1, // Allow title to take available space
-        textAlign: 'center', // Center the title
-        marginRight: -38, // Adjust to center if filter icon pushes it
+        flex: 1,
+        textAlign: 'center',
     },
     filterIconContainer: {
         padding: 5,
@@ -212,7 +198,7 @@ const styles = StyleSheet.create({
         opacity: 0.9, // Less opacity reduction for read items
     },
     notificationContent: {
-        flexDirection: 'row',
+        flexDirection: 'row-reverse',
         alignItems: 'flex-start',
         marginBottom: 10,
         width: '100%',
@@ -221,9 +207,9 @@ const styles = StyleSheet.create({
         width: 8,
         height: 8,
         borderRadius: 4,
-        backgroundColor: colors.accent, // Use accent color for unread indicator
-        marginRight: 10,
-        marginTop: 5,
+        backgroundColor: colors.primaryHighlighted,
+        marginLeft: 8,
+        marginTop: 8,
     },
     textContainer: {
         flex: 1,
@@ -233,11 +219,14 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: colors.primary,
         marginBottom: 5,
+        justifyContent: 'flex-start',
+        textAlign: 'right'
     },
     notificationMessage: {
         fontSize: 16,
         color: colors.text,
         marginBottom: 5,
+        textAlign: 'right'
     },
     notificationTimestamp: {
         fontSize: 12,
@@ -246,17 +235,7 @@ const styles = StyleSheet.create({
         marginTop: 5,
     },
     markAsReadButton: {
-        backgroundColor: colors.secondary, // Use a secondary color for the button
-        paddingVertical: 8,
-        paddingHorizontal: 15,
-        borderRadius: 20,
-        alignSelf: 'flex-end',
-        marginTop: 5,
-    },
-    markAsReadButtonText: {
-        color: colors.white,
-        fontSize: 14,
-        fontWeight: "bold",
+        alignSelf: 'flex-start',
     },
     loadingContainer: {
         flex: 1,

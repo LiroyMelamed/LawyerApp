@@ -15,9 +15,9 @@ const GenericButton = forwardRef(({
     pressedBackgroundColor = colors.transparent,
     disabledBackgroundColor = colors.transparent,
 
-    contentColor = colors.black,
-    pressedContentColor = colors.black,
-    disabledContentColor = colors.black,
+    contentColor = colors.white,
+    pressedContentColor = colors.SideBarSelected,
+    disabledContentColor = colors.disabled,
 
     hasBorder = false,
     leftIcon,
@@ -86,19 +86,20 @@ const GenericButton = forwardRef(({
 
     const buttonStyle = {
         ...styles.button,
-        padding: size === buttonSizes.SMALL ? 8 : 16,
-        height: `${getButtonHeightBySize(size)}px`,
+        height: getButtonHeightBySize(size),
         backgroundColor: getBackgroundColor(),
         borderWidth: hasBorder ? 1 : 0,
         borderStyle: 'solid',
         borderColor: getContentColor(),
         boxShadow: disabled ? 'none' : `0px 2px 6px ${shadowColor}`,
+        paddingHorizontal: size === buttonSizes.SMALL ? 8 : 16, // Add horizontal padding
+        paddingVertical: size === buttonSizes.SMALL ? 4 : 8,   // Add vertical padding
         ...customStyle,
     };
 
     const textStyle = {
         ...styles.text,
-        fontFamily: 'Fredoka', // Font family
+
         color: getContentColor(),
         fontSize: size === buttonSizes.SMALL ? 12 : 14,
     };
@@ -135,7 +136,6 @@ const styles = {
     text: {
         textAlign: 'center',
         marginHorizontal: 4,
-        fontFamily: 'Fredoka-Regular',
     },
 };
 

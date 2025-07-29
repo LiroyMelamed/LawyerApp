@@ -6,6 +6,8 @@ const useAutoHttpRequest = (requestFunction, { body = [], onSuccess = null, onFa
   const { result, isPerforming, error, performRequest } = useHttpRequest(requestFunction, onSuccess, onFailure);
 
   useEffect(() => {
+    console.log('reperformRequest');
+
     performRequest(body);
   }, []);
 
