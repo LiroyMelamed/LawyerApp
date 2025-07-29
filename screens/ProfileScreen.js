@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Keyboard, Platform, KeyboardAvoidingView, ScrollView, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Keyboard, Platform, KeyboardAvoidingView, ScrollView, TouchableWithoutFeedback, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import SimpleInput from '../components/simpleComponents/SimpleInput';
 import SimpleIcon from '../components/simpleComponents/SimpleIcon';
@@ -24,7 +24,15 @@ const ProfileScreen = () => {
         dateOfBirth: '',
     });
 
-    const { isPerforming, performRequest } = useHttpRequest(customersApi.updateCurrentCustomer, onSuccessSave)
+    const onSuccessSave = () => {
+        Alert.alert(
+            "הצלחה",
+            "פרופיל התעדכן בהצלחה",
+            [{ text: "אישור" }]
+        );
+    };
+
+    const { isPerforming, performRequest } = useHttpRequest(customersApi.updateCurrentCustomer, onSuccessSave, null)
     const { isPerforming: isFetching } = useAutoHttpRequest(customersApi.getCurrentCustomer, {
         onSuccess: (data) => {
             setProfile((prevProfile) => ({
@@ -33,7 +41,7 @@ const ProfileScreen = () => {
                 email: data.Email,
                 companyName: data.CompanyName,
                 phoneNumber: data.PhoneNumber,
-                dateOfBirth: data.DateOfBirth || '',
+                dateOfBirth: data.DateOfBirth ? new Date(data.DateOfBirth) : null,
                 profilePic: data.ProfilePicUrl || null,
             }));
         },
@@ -64,11 +72,16 @@ const ProfileScreen = () => {
     };
 
     const handleSave = () => {
-        performRequest(profile)
-    };
+        const payload = {
+            Name: profile.name,
+            Email: profile.email,
+            PhoneNumber: profile.phoneNumber,
+            CompanyName: profile.companyName,
+            dateOfBirth: profile.dateOfBirth,
+            profilePicBase64: profile.profilePicBase64,
+        };
 
-    const onSuccessSave = () => {
-        // console.log(profile);
+        performRequest(payload);
     };
 
     if (isFetching) {
