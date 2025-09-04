@@ -13,14 +13,21 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.melamedia.MelamedLaw",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "האפליקציה זקוקה לגישה לספריית התמונות כדי לאפשר לך לבחור תמונת פרופיל.",
+        "NSPhotoLibraryAddUsageDescription": "האפליקציה זקוקה להרשאה כדי לשמור תמונות בספריית התמונות שלך."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.melamedia.MelamedLaw"
     },
     "web": {
       "favicon": "./assets/favicon.png"

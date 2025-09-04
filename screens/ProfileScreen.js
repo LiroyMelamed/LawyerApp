@@ -59,16 +59,20 @@ const ProfileScreen = () => {
             quality: 0.7,
         });
 
+        // Add a robust check to ensure the user did not cancel and assets exist
+        if (result.canceled || !result.assets || result.assets.length === 0) {
+            console.log("Image picking cancelled or no assets selected.");
+            return;
+        }
+
         const imageUri = result.assets[0].uri;
 
-        if (!result.cancelled) {
-            const base64Image = await FileSystem.readAsStringAsync(imageUri, { encoding: FileSystem.EncodingType.Base64 });
-            setProfile((prevProfile) => ({
-                ...prevProfile,
-                profilePic: imageUri,
-                profilePicBase64: base64Image
-            }));
-        }
+        const base64Image = await FileSystem.readAsStringAsync(imageUri, { encoding: FileSystem.EncodingType.Base64 });
+        setProfile((prevProfile) => ({
+            ...prevProfile,
+            profilePic: imageUri,
+            profilePicBase64: base64Image
+        }));
     };
 
     const handleSave = () => {

@@ -16,7 +16,9 @@ export default function NotificationScreen() {
     const [error, setError] = useState(null);
 
     const onSuccessFetchNotifications = (data) => {
-        const sortedNotifications = data.sort((a, b) => new Date(b.CreatedAt) - new Date(a.CreatedAt));
+        console.log('dataaaaaaaaaaaaaaaa', data);
+
+        const sortedNotifications = data.sort((a, b) => new Date(b.createdat) - new Date(a.createdat));
         setNotifications(sortedNotifications);
         setError(null);
     };
@@ -36,12 +38,12 @@ export default function NotificationScreen() {
     );
 
     const onSuccessMarkAsRead = (data) => {
-        const updatedId = data?.NotificationId;
+        const updatedId = data?.notificationid;
         if (!updatedId) return;
 
         setNotifications(prevNotifications =>
             prevNotifications.map(notif =>
-                notif.NotificationId === updatedId ? { ...notif, IsRead: true } : notif
+                notif.notificationid === updatedId ? { ...notif, isread: true } : notif
             )
         );
         setIsMarkingId('');
@@ -67,14 +69,14 @@ export default function NotificationScreen() {
     };
 
     const renderItem = ({ item }) => (
-        <View style={[styles.notificationItem, item.IsRead && styles.readNotificationItem]}>
+        <View style={[styles.notificationItem, item.isread && styles.readNotificationItem]}>
             <View style={styles.notificationContent}>
-                {!item.IsRead && <View style={styles.unreadIndicator} />}
+                {!item.isread && <View style={styles.unreadIndicator} />}
                 <View style={styles.textContainer}>
-                    <Text style={styles.notificationTitle}>{item.Title || "התראה חדשה"}</Text>
-                    <Text style={styles.notificationMessage}>{item.Message}</Text>
+                    <Text style={styles.notificationTitle}>{item.title || "התראה חדשה"}</Text>
+                    <Text style={styles.notificationMessage}>{item.message}</Text>
                     <Text style={styles.notificationTimestamp}>
-                        {new Date(item.CreatedAt).toLocaleDateString('he-IL', {
+                        {new Date(item.createdat).toLocaleDateString('he-IL', {
                             year: 'numeric',
                             month: 'numeric',
                             day: 'numeric',
@@ -84,13 +86,13 @@ export default function NotificationScreen() {
                     </Text>
                 </View>
             </View>
-            {!item.IsRead && (
+            {!item.isread && (
                 <PrimaryButton
                     style={styles.markAsReadButton}
-                    onPress={() => handleMarkAsRead(item.NotificationId)}
+                    onPress={() => handleMarkAsRead(item.notificationid)}
                     size={buttonSizes.SMALL}
                 >
-                    {isMarkingAsRead && isMarkingId === item.NotificationId ? (
+                    {isMarkingAsRead && isMarkingId === item.notificationid ? (
                         <ActivityIndicator size="small" color={colors.white} />
                     ) : (
                         <Text12 style={{ color: colors.white }}>סמן כנקרא</Text12>
@@ -133,7 +135,7 @@ export default function NotificationScreen() {
                 ) : (
                     <FlatList
                         data={notifications}
-                        keyExtractor={(item) => item.NotificationId.toString()}
+                        keyExtractor={(item) => item.notificationid.toString()}
                         extraData={notifications}
                         renderItem={renderItem}
                         contentContainerStyle={styles.flatListContent}

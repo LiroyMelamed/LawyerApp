@@ -78,7 +78,6 @@ export default function MainLayout() {
             <BottomNav
                 activeTab={activeTab}
                 canGoBack={canWebViewGoBack}
-                goBack={goBackInWebView}
                 navigation={handleBottomNavPress}
             />
         </SafeAreaView>

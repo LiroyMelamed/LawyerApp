@@ -12,7 +12,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const AppRoles = {
     Admin: 'Admin',
-    Customer: 'Customer'
+    Customer: 'User'
 };
 
 export const LoginOtpScreenName = "/LoginOtpScreen";

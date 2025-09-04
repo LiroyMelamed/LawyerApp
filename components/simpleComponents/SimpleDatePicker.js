@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import React, { forwardRef, useState, useCallback } from 'react';
+import React, { forwardRef, useState, useCallback, useRef } from 'react';
 import { colors } from '../../assets/colors';
 import SimpleIcon from './SimpleIcon';
 
@@ -23,10 +23,12 @@ const SimpleDatePicker = forwardRef(({
     disabled = false,
     error,
     onPress,
+    closeDelay = 3000,
     ...props
 }, ref) => {
     const [showPicker, setShowPicker] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
+    const closeTimeoutRef = useRef(null);
 
     const sizeStyles = inputStyles[inputSize];
 
@@ -38,27 +40,55 @@ const SimpleDatePicker = forwardRef(({
         })
         : '';
 
-    const handleDateChange = useCallback((event, selectedDate) => {
-        if (Platform.OS === 'android' && event.type === 'dismissed') {
-            setShowPicker(false);
-            setIsFocused(false);
-            return;
-        }
-
+    const closePicker = useCallback(() => {
         setShowPicker(false);
         setIsFocused(false);
+    }, []);
+
+    const handleDateChange = useCallback((event, selectedDate) => {
+        if (closeTimeoutRef.current) {
+            clearTimeout(closeTimeoutRef.current);
+        }
+
+        if (Platform.OS === 'android' && event.type === 'dismissed') {
+            closePicker();
+            return;
+        }
 
         if (selectedDate) {
             onChange?.(selectedDate);
         }
-    }, [onChange]);
+
+        if (Platform.OS === 'ios') {
+            closeTimeoutRef.current = setTimeout(() => {
+                closePicker();
+            }, closeDelay);
+        } else {
+            closePicker();
+        }
+    }, [onChange, closeDelay, closePicker]);
 
     const showDatePicker = useCallback(() => {
         if (disabled) return;
+
+        // Clear any existing timeout when opening
+        if (closeTimeoutRef.current) {
+            clearTimeout(closeTimeoutRef.current);
+        }
+
         setShowPicker(true);
         setIsFocused(true);
         onPress?.();
     }, [disabled, onPress]);
+
+    // Clean up timeout on unmount
+    React.useEffect(() => {
+        return () => {
+            if (closeTimeoutRef.current) {
+                clearTimeout(closeTimeoutRef.current);
+            }
+        };
+    }, []);
 
     return (
         <View

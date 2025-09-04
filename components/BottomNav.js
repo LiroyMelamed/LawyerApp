@@ -1,29 +1,40 @@
-import { Image, TouchableOpacity, Linking, StyleSheet } from "react-native";
+import { ActionSheetIOS, Image, TouchableOpacity, Linking, StyleSheet } from "react-native";
 import { icons } from "../assets/icons/icons";
 import { View, Text } from "react-native";
 import { colors } from "../assets/colors";
 import { ScreenNames } from '../navigation/screenNames';
 
-export const BottomNav = ({ activeTab, canGoBack, goBack, navigation }) => {
+export const BottomNav = ({ activeTab, canGoBack, navigation }) => {
     const handleTabPress = (tab) => {
+        if (tab === "צור קשר") {
+            ActionSheetIOS.showActionSheetWithOptions(
+                {
+                    options: ["ביטול", "התקשר", "שלח הודעה", "פתח וואטסאפ"],
+                    cancelButtonIndex: 0,
+                },
+                (buttonIndex) => {
+                    if (buttonIndex === 1) {
+                        Linking.openURL("tel:036565004");
+                    } else if (buttonIndex === 2) {
+                        Linking.openURL("sms:0559199044");
+                    } else if (buttonIndex === 3) {
+                        Linking.openURL("https://wa.me/972559199044");
+                    }
+                }
+            );
+            return;
+        }
         navigation(tab);
     };
 
     const NavItem = ({ name, icon, isCenter }) => {
         const isCurrentActiveTab = activeTab === name || (isCenter && activeTab === ScreenNames.Home);
-
         const iconStyle = isCenter ? styles.centerIcon : styles.icon;
-        const containerStyle = isCenter
-            ? styles.centerButton
-            : styles.navItemContainer;
-
+        const containerStyle = isCenter ? styles.centerButton : styles.navItemContainer;
         const shouldBeActiveVisually = isCurrentActiveTab && !["צור קשר", "חזור"].includes(name);
 
         return (
-            <TouchableOpacity
-                onPress={() => { handleTabPress(name); }}
-                style={containerStyle}
-            >
+            <TouchableOpacity onPress={() => handleTabPress(name)} style={containerStyle}>
                 <View
                     style={[
                         shouldBeActiveVisually && !isCenter && styles.activeIconCircle,
@@ -35,8 +46,8 @@ export const BottomNav = ({ activeTab, canGoBack, goBack, navigation }) => {
                         style={[
                             iconStyle,
                             shouldBeActiveVisually && !isCenter && styles.activeIcon,
-                            isCenter && isCurrentActiveTab && styles.activeIconCenter, // Corrected logic for center button active state
-                            name === "חזור" && !canGoBack && { opacity: 0.4 }
+                            isCenter && isCurrentActiveTab && styles.activeIconCenter,
+                            name === "חזור" && !canGoBack && activeTab == "מסך הבית" && { opacity: 0.2 }
                         ]}
                     />
                 </View>
@@ -113,10 +124,10 @@ const styles = StyleSheet.create({
         borderRadius: 300,
     },
     centerButton: {
-        marginTop: -45, // Adjust this carefully based on your design
+        marginTop: -45,
         alignItems: "center",
         justifyContent: "center",
-        zIndex: 1, // Ensure it's above other elements
+        zIndex: 1,
     },
     centerIconWrapper: {
         backgroundColor: colors.primary,

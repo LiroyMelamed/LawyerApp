@@ -1,14 +1,14 @@
 import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const isProduction = true;
+const isProduction = false;
 
 function selectMode(forProduction, forStage) {
     return isProduction ? forProduction : forStage;
 }
 
-const prodURL = "https://many-melons-pull.loca.lt/api";
-const stageURL = "http://localhost:5000/api";
+const prodURL = "https://api.calls.melamedlaw.co.il/api";
+const stageURL = "http://10.0.0.12:5000/api";
 
 const apiUtils = axios.create({
     baseURL: selectMode(prodURL, stageURL),
