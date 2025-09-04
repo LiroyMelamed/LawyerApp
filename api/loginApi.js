@@ -6,7 +6,6 @@ const ADMIN_LOGIN_OTP_DATA_ENDPOINT = 'Auth/Login';
 
 const loginApi = {
     sendOtp: async (phoneNumber) => {
-        console.log('sendOtp', phoneNumber);
         return await apiUtils.post(REQUEST_API_DATA_ENDPOINT, { phoneNumber });
     },
 

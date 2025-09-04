@@ -10,13 +10,9 @@ export function PushTokenRegistrar() {
     const { performRequest } = useHttpRequest(pushNotificationApi.saveDeviceToken);
 
     useEffect(() => {
-        console.log('loginInfo?.token', loginInfo?.token);
-
         if (!loginInfo?.token) return;
 
         registerForPushNotificationsAsync().then((token) => {
-            console.log('token', token);
-
             if (token) {
                 performRequest({
                     fcmToken: token,

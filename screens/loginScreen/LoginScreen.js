@@ -28,11 +28,7 @@ export default function LoginScreen() {
     };
 
     const handlePress = useCallback(() => {
-        console.log('handlePress', phoneNumber);
-
         if (phoneNumber && !phoneNumberError) {
-            console.log('performRequest', phoneNumber);
-
             performRequest(phoneNumber);
         }
     }, [phoneNumber, phoneNumberError, performRequest]);

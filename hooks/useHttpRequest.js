@@ -6,8 +6,6 @@ const useHttpRequest = (requestFunction, onSuccess, onFailure) => {
     const [result, setResult] = useState(null);
 
     const defaultOnFailure = (error) => {
-        console.log('error', error);
-
         const errorMessage = error?.data?.message || error?.message || "אירעה שגיאה לא צפויה";
 
         Alert.alert(

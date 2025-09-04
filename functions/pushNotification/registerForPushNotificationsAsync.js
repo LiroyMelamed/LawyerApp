@@ -14,8 +14,6 @@ export async function registerForPushNotificationsAsync() {
             finalStatus = status;
         }
 
-        console.log("📛 Final Notification Permission Status:", finalStatus);
-
         if (finalStatus !== "granted") {
             alert("אנא אפשר התראות בהגדרות כדי לקבל עדכונים.");
             return null;
@@ -28,7 +26,6 @@ export async function registerForPushNotificationsAsync() {
         token = data;
 
     } else {
-        console.log("❗ Must use physical device for Push Notifications");
     }
 
     if (Platform.OS === "android") {

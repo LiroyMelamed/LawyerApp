@@ -61,7 +61,6 @@ const ProfileScreen = () => {
 
         // Add a robust check to ensure the user did not cancel and assets exist
         if (result.canceled || !result.assets || result.assets.length === 0) {
-            console.log("Image picking cancelled or no assets selected.");
             return;
         }
 

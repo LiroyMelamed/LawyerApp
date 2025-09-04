@@ -16,8 +16,6 @@ export default function NotificationScreen() {
     const [error, setError] = useState(null);
 
     const onSuccessFetchNotifications = (data) => {
-        console.log('dataaaaaaaaaaaaaaaa', data);
-
         const sortedNotifications = data.sort((a, b) => new Date(b.createdat) - new Date(a.createdat));
         setNotifications(sortedNotifications);
         setError(null);
